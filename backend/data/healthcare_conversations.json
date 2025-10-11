@@ -1,0 +1,182 @@
+[
+  {
+    "conversation_id": "conv_001",
+    "messages": [
+      {
+        "role": "user",
+        "content": "I've been having headaches for the past week. What could be causing this?",
+        "intent": "symptom_inquiry"
+      },
+      {
+        "role": "assistant",
+        "content": "Headaches can have various causes including stress, dehydration, poor sleep, eye strain, or tension. If your headaches are severe, persistent, or accompanied by other symptoms like vision changes or fever, please consult a healthcare provider for proper evaluation.",
+        "intent": "symptom_analysis"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_002",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What should I do if I have a fever?",
+        "intent": "symptom_inquiry"
+      },
+      {
+        "role": "assistant",
+        "content": "For fever management: rest, stay hydrated, use fever-reducing medications like acetaminophen or ibuprofen as directed, and monitor your temperature. Seek medical attention if fever exceeds 103°F (39.4°C), persists beyond 3 days, or is accompanied by severe symptoms.",
+        "intent": "treatment_advice"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_003",
+    "messages": [
+      {
+        "role": "user",
+        "content": "I have chest pain. Should I be worried?",
+        "intent": "emergency_inquiry"
+      },
+      {
+        "role": "assistant",
+        "content": "Chest pain can be serious and should not be ignored. If you're experiencing severe chest pain, especially with shortness of breath, sweating, or pain radiating to your arm or jaw, seek immediate medical attention or call emergency services. It's always better to be evaluated by a healthcare professional for chest pain.",
+        "intent": "emergency_guidance"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_004",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What are the benefits of regular exercise for health?",
+        "intent": "health_education"
+      },
+      {
+        "role": "assistant",
+        "content": "Regular exercise provides numerous health benefits including improved cardiovascular health, stronger muscles and bones, better mental health, weight management, improved sleep quality, and reduced risk of chronic diseases like diabetes and heart disease. Aim for at least 150 minutes of moderate-intensity exercise per week.",
+        "intent": "health_education"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_005",
+    "messages": [
+      {
+        "role": "user",
+        "content": "I've been feeling anxious lately. What can I do?",
+        "intent": "mental_health_inquiry"
+      },
+      {
+        "role": "assistant",
+        "content": "Anxiety is common and manageable. Try relaxation techniques like deep breathing, meditation, or gentle exercise. Maintain a regular sleep schedule, limit caffeine, and consider talking to a mental health professional if anxiety significantly impacts your daily life. Remember, seeking help is a sign of strength.",
+        "intent": "mental_health_support"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_006",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What should I eat to maintain a healthy diet?",
+        "intent": "nutrition_inquiry"
+      },
+      {
+        "role": "assistant",
+        "content": "A healthy diet includes a variety of fruits and vegetables, whole grains, lean proteins, and healthy fats. Limit processed foods, added sugars, and excessive sodium. Stay hydrated with water and aim for balanced portions. Consider consulting a registered dietitian for personalized nutrition advice.",
+        "intent": "nutrition_guidance"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_007",
+    "messages": [
+      {
+        "role": "user",
+        "content": "I have a persistent cough. When should I see a doctor?",
+        "intent": "symptom_inquiry"
+      },
+      {
+        "role": "assistant",
+        "content": "A persistent cough lasting more than 3 weeks should be evaluated by a doctor. Also seek medical attention if your cough is accompanied by fever, chest pain, difficulty breathing, blood in sputum, or significant weight loss. These could indicate a more serious underlying condition.",
+        "intent": "symptom_analysis"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_008",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What are the warning signs of a heart attack?",
+        "intent": "emergency_education"
+      },
+      {
+        "role": "assistant",
+        "content": "Heart attack warning signs include chest pain or pressure, pain in arms, back, neck, or jaw, shortness of breath, cold sweats, nausea, and lightheadedness. Symptoms can vary between individuals. If you suspect a heart attack, call emergency services immediately - time is critical.",
+        "intent": "emergency_education"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_009",
+    "messages": [
+      {
+        "role": "user",
+        "content": "How much sleep do I need for good health?",
+        "intent": "lifestyle_inquiry"
+      },
+      {
+        "role": "assistant",
+        "content": "Most adults need 7-9 hours of sleep per night for optimal health. Quality sleep is essential for physical recovery, mental clarity, immune function, and emotional well-being. Maintain a consistent sleep schedule, create a comfortable sleep environment, and avoid screens before bedtime.",
+        "intent": "lifestyle_advice"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_010",
+    "messages": [
+      {
+        "role": "user",
+        "content": "I have diabetes. What lifestyle changes should I make?",
+        "intent": "chronic_condition_management"
+      },
+      {
+        "role": "assistant",
+        "content": "For diabetes management: monitor blood glucose regularly, follow a balanced diet with controlled carbohydrates, engage in regular physical activity, take medications as prescribed, maintain a healthy weight, and work closely with your healthcare team. Regular check-ups and monitoring are crucial for preventing complications.",
+        "intent": "chronic_condition_guidance"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_011",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What are the side effects of blood pressure medication?",
+        "intent": "medication_inquiry"
+      },
+      {
+        "role": "assistant",
+        "content": "Blood pressure medications can have various side effects depending on the specific medication. Common side effects may include dizziness, fatigue, dry cough, or changes in potassium levels. Always discuss any concerns with your healthcare provider and never stop taking prescribed medication without medical guidance.",
+        "intent": "medication_education"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_012",
+    "messages": [
+      {
+        "role": "user",
+        "content": "How can I prevent the flu?",
+        "intent": "prevention_inquiry"
+      },
+      {
+        "role": "assistant",
+        "content": "Flu prevention strategies include getting an annual flu vaccine, frequent hand washing, avoiding close contact with sick individuals, covering coughs and sneezes, maintaining a healthy lifestyle with proper nutrition and exercise, and staying home when sick to prevent spreading the virus to others.",
+        "intent": "prevention_guidance"
+      }
+    ]
+  }
+]
