@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HealthBot AI</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.globe.min.js"></script>
+    <style>
+      .chat-container {
+        height: 70vh;
+        overflow-y: auto;
+        scroll-behavior: smooth;
+      }
+      .message-bubble {
+        max-width: 80%;
+        border-radius: 1rem;
+        animation: fadeIn 0.3s ease-in-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .typing-indicator span {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #4f46e5;
+        margin: 0 2px;
+        animation: bounce 1.4s infinite ease-in-out;
+      }
+      .typing-indicator span:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .typing-indicator span:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+      @keyframes bounce {
+        0%,
+        60%,
+        100% {
+          transform: translateY(0);
+        }
+        30% {
+          transform: translateY(-5px);
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50" id="vanta-bg">
+    <div class="min-h-screen flex flex-col">
+      <!-- Header -->
+      <header class="bg-indigo-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <i data-feather="heart" class="w-8 h-8"></i>
+              <h1 class="text-2xl font-bold">HealthBot AI</h1>
+            </div>
+            <button
+              class="bg-white text-indigo-600 px-4 py-2 rounded-full font-medium hover:bg-indigo-100 transition"
+            >
+              <i data-feather="user" class="inline mr-1"></i> Sign In
+            </button>
+          </div>
+          <p class="mt-2 opacity-90">
+            Your virtual healthcare assistant powered by AI
+          </p>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="flex-grow container mx-auto px-4 py-8 flex flex-col">
+        <div
+          class="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col flex-grow"
+        >
+          <!-- Chat Header -->
+          <div class="bg-indigo-500 text-white p-4 flex items-center">
+            <div
+              class="w-10 h-10 rounded-full bg-indigo-400 flex items-center justify-center"
+            >
+              <i data-feather="message-square" class="w-5 h-5"></i>
+            </div>
+            <div class="ml-3">
+              <h2 class="font-bold">HealthBot Assistant</h2>
+              <p class="text-xs opacity-80">Online</p>
+            </div>
+          </div>
+
+          <!-- Chat Messages -->
+          <div class="chat-container p-4 space-y-3 flex-grow bg-gray-50">
+            <div class="flex justify-start">
+              <div class="message-bubble bg-white p-3 shadow-md">
+                <p>
+                  Hello! I'm your HealthBot AI assistant. How can I help you
+                  today?
+                </p>
+                <p class="text-xs text-gray-500 mt-1">Just now</p>
+              </div>
+            </div>
+
+            <!-- Example messages -->
+            <div class="flex justify-end">
+              <div
+                class="message-bubble bg-indigo-500 text-white p-3 shadow-md"
+              >
+                <p>I've been having headaches recently</p>
+                <p class="text-xs text-indigo-100 mt-1">Just now</p>
+              </div>
+            </div>
+
+            <div class="flex justify-start">
+              <div class="message-bubble bg-white p-3 shadow-md">
+                <p>
+                  I'm sorry to hear that. How long have you been experiencing
+                  these headaches?
+                </p>
+                <p class="text-xs text-gray-500 mt-1">Just now</p>
+              </div>
+            </div>
+
+            <!-- Typing indicator -->
+            <div class="flex justify-start">
+              <div class="message-bubble bg-white p-3 shadow-md">
+                <div class="typing-indicator flex items-center space-x-1">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Input Area -->
+          <div class="border-t border-gray-200 p-4 bg-white">
+            <div class="flex space-x-2">
+              <input
+                type="text"
+                placeholder="Type your health concern..."
+                class="flex-grow border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+              <button
+                title="Send"
+                class="bg-indigo-500 text-white rounded-full p-2 hover:bg-indigo-600 transition"
+              >
+                <i data-feather="send" class="w-5 h-5"></i>
+              </button>
+            </div>
+            <div class="mt-2 flex justify-between text-xs text-gray-500">
+              <span>Powered by Hugging Face AI</span>
+              <span>Not a substitute for professional medical advice</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div
+            class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition"
+          >
+            <div
+              class="bg-indigo-100 w-12 h-12 rounded-full flex items-center justify-center mb-4"
+            >
+              <i data-feather="activity" class="text-indigo-600 w-5 h-5"></i>
+            </div>
+            <h3 class="font-bold text-lg mb-2">Symptom Checker</h3>
+            <p class="text-gray-600">
+              Get preliminary assessment of your symptoms based on medical
+              knowledge.
+            </p>
+          </div>
+
+          <div
+            class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition"
+          >
+            <div
+              class="bg-indigo-100 w-12 h-12 rounded-full flex items-center justify-center mb-4"
+            >
+              <i data-feather="book-open" class="text-indigo-600 w-5 h-5"></i>
+            </div>
+            <h3 class="font-bold text-lg mb-2">Health Education</h3>
+            <p class="text-gray-600">
+              Learn about medical conditions, treatments, and healthy lifestyle
+              choices.
+            </p>
+          </div>
+
+          <div
+            class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition"
+          >
+            <div
+              class="bg-indigo-100 w-12 h-12 rounded-full flex items-center justify-center mb-4"
+            >
+              <i data-feather="map-pin" class="text-indigo-600 w-5 h-5"></i>
+            </div>
+            <h3 class="font-bold text-lg mb-2">Find Care</h3>
+            <p class="text-gray-600">
+              Get recommendations for nearby healthcare providers when needed.
+            </p>
+          </div>
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+          <div class="flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+              <div class="flex items-center space-x-2">
+                <i data-feather="heart" class="w-6 h-6 text-indigo-400"></i>
+                <span class="font-bold">HealthBot AI</span>
+              </div>
+              <p class="text-sm mt-2 text-gray-400">
+                Your virtual healthcare companion
+              </p>
+            </div>
+            <div class="flex space-x-6">
+              <a href="#" class="hover:text-indigo-300 transition">Privacy</a>
+              <a href="#" class="hover:text-indigo-300 transition">Terms</a>
+              <a href="#" class="hover:text-indigo-300 transition">Contact</a>
+            </div>
+          </div>
+          <div
+            class="mt-6 pt-6 border-t border-gray-700 text-center text-sm text-gray-400"
+          >
+            <p>
+              © 2023 HealthBot AI. This is not a substitute for professional
+              medical advice.
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      // Initialize Vanta.js background
+      VANTA.GLOBE({
+        el: "#vanta-bg",
+        mouseControls: true,
+        touchControls: true,
+        gyroControls: false,
+        minHeight: 200.0,
+        minWidth: 200.0,
+        scale: 1.0,
+        scaleMobile: 1.0,
+        color: 0x4f46e5,
+        backgroundColor: 0xf3f4f6,
+        size: 0.8,
+      });
+
+      // Initialize Feather Icons
+      feather.replace();
+
+      // Chat interaction
+      document.addEventListener("DOMContentLoaded", function () {
+        const chatContainer = document.querySelector(".chat-container");
+        const inputField = document.querySelector('input[type="text"]');
+        const sendButton = document.querySelector("button");
+
+        // Auto-scroll to bottom of chat
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        // Send message function
+        function sendMessage() {
+          const message = inputField.value.trim();
+          if (message) {
+            // Add user message
+            const userMessage = document.createElement("div");
+            userMessage.className = "flex justify-end";
+            userMessage.innerHTML = `
+                        <div class="message-bubble bg-indigo-500 text-white p-3 shadow-md">
+                            <p>${message}</p>
+                            <p class="text-xs text-indigo-100 mt-1">Just now</p>
+                        </div>
+                    `;
+            chatContainer.appendChild(userMessage);
+
+            // Clear input
+            inputField.value = "";
+
+            // Show typing indicator
+            const typingIndicator = document.createElement("div");
+            typingIndicator.className = "flex justify-start";
+            typingIndicator.innerHTML = `
+                        <div class="message-bubble bg-white p-3 shadow-md">
+                            <div class="typing-indicator flex items-center space-x-1">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    `;
+            chatContainer.appendChild(typingIndicator);
+
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            // Simulate bot response after delay
+            setTimeout(() => {
+              // Remove typing indicator
+              chatContainer.removeChild(typingIndicator);
+
+              // Add bot response (in a real app, this would come from API)
+              const responses = [
+                "I understand. Can you tell me more about your symptoms?",
+                "How long have you been experiencing this?",
+                "Have you noticed any triggers for this issue?",
+                "That sounds concerning. Have you seen a doctor about this?",
+                "Let me check my knowledge base about this condition.",
+              ];
+              const randomResponse =
+                responses[Math.floor(Math.random() * responses.length)];
+
+              const botMessage = document.createElement("div");
+              botMessage.className = "flex justify-start";
+              botMessage.innerHTML = `
+                            <div class="message-bubble bg-white p-3 shadow-md">
+                                <p>${randomResponse}</p>
+                                <p class="text-xs text-gray-500 mt-1">Just now</p>
+                            </div>
+                        `;
+              chatContainer.appendChild(botMessage);
+
+              // Scroll to bottom
+              chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 1500);
+          }
+        }
+
+        // Send message on button click
+        sendButton.addEventListener("click", sendMessage);
+
+        // Send message on Enter key
+        inputField.addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            sendMessage();
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

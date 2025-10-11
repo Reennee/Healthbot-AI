@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+/* Custom utilities for Chat component to avoid inline styles */
+.chat-container-scroll {
+  height: 70vh;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.typing-indicator .typing-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+.typing-indicator .typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.typing-indicator .typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
