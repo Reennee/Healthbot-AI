@@ -1,0 +1,24 @@
+# Model files (too large for GitHub)
+backend/models_tf/
+*.h5
+*.data-00000-of-00001
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

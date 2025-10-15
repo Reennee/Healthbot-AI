@@ -1,16 +1,18 @@
-# HealthBot AI - Healthcare Domain Chatbot
+# HealthBot AI - Advanced Healthcare Domain Chatbot
 
-A comprehensive healthcare domain-specific chatbot built with Next.js frontend and FastAPI backend, powered by transformer models from Hugging Face.
+A comprehensive, production-ready healthcare domain-specific chatbot built with Next.js frontend and FastAPI backend, powered by fine-tuned transformer models from Hugging Face. This project demonstrates advanced NLP techniques including hyperparameter tuning, comprehensive evaluation metrics, and domain-specific optimization.
 
 ## 🏥 Project Overview
 
-This project implements a healthcare chatbot that provides:
-- **Symptom Analysis**: Preliminary assessment of health symptoms
-- **Health Education**: Information about medical conditions and treatments
-- **Medication Guidance**: General information about medications
-- **Lifestyle Advice**: Health and wellness recommendations
+This project implements an advanced healthcare chatbot that provides:
+- **Intelligent Symptom Analysis**: AI-powered preliminary assessment with confidence scoring
+- **Comprehensive Health Education**: Detailed information about medical conditions and treatments
+- **Smart Medication Guidance**: Context-aware medication information and safety warnings
+- **Personalized Lifestyle Advice**: Tailored health and wellness recommendations
+- **Emergency Detection**: Automatic recognition of urgent medical situations
+- **Quality Assurance**: Built-in medical disclaimers and safety boundaries
 
-**⚠️ Important Disclaimer**: This chatbot is for educational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment.
+**⚠️ Important Disclaimer**: This chatbot is for educational and research purposes only and is not a substitute for professional medical advice, diagnosis, or treatment. Always consult qualified healthcare professionals for medical concerns.
 
 ## 🚀 Quick Start
 
@@ -77,26 +79,37 @@ Healthbot-AI/
 └── README.md
 ```
 
-## 🤖 Technical Architecture
+## 🤖 Advanced Technical Architecture
 
-### Backend (FastAPI + Transformers)
-- **Model**: Microsoft DialoGPT (fine-tuned for healthcare)
-- **Framework**: FastAPI with automatic API documentation
-- **Features**: Conversation management, domain relevance detection, confidence scoring
-- **Endpoints**: Chat, symptom analysis, conversation history
+### Backend (FastAPI + Enhanced Transformers)
+- **Model**: Microsoft DialoGPT with comprehensive fine-tuning pipeline
+- **Framework**: FastAPI with automatic API documentation and performance monitoring
+- **Advanced Features**: 
+  - Hyperparameter optimization with multiple configurations
+  - Comprehensive evaluation metrics (BLEU, ROUGE, perplexity)
+  - Intent classification and domain relevance detection
+  - Quality scoring and response analysis
+  - Conversation management with persistent storage
+- **Enhanced Endpoints**: Chat, symptom analysis, performance metrics, model evaluation
 
-### Frontend (Next.js + React)
-- **Framework**: Next.js 14 with App Router
-- **Styling**: Tailwind CSS
-- **Components**: Modular React components (Header, Chat, Features, Footer)
-- **Background**: Vanta.js 3D animated background
-- **Icons**: React Feather icons
+### Frontend (Next.js + Advanced React)
+- **Framework**: Next.js 15 with App Router and React 19
+- **Styling**: Tailwind CSS with custom animations
+- **Advanced Components**: 
+  - Enhanced Chat with quality metrics display
+  - Performance monitoring dashboard
+  - Export functionality for conversations
+  - Real-time confidence scoring
+- **Background**: Vanta.js 3D animated background with healthcare theme
+- **Icons**: React Feather icons with custom healthcare symbols
 
-### AI Model Pipeline
-1. **Pre-training**: Uses pre-trained DialoGPT model
-2. **Fine-tuning**: Custom healthcare conversation dataset
-3. **Inference**: Real-time text generation with domain filtering
-4. **Safety**: Medical disclaimers and emergency detection
+### Advanced AI Model Pipeline
+1. **Data Preprocessing**: Comprehensive healthcare conversation dataset with 15+ diverse scenarios
+2. **Hyperparameter Tuning**: Automated optimization across multiple configurations
+3. **Fine-tuning**: Domain-specific training with healthcare conversations
+4. **Evaluation**: Multi-metric assessment with BLEU, ROUGE, and qualitative analysis
+5. **Inference**: Real-time text generation with confidence scoring and safety checks
+6. **Quality Assurance**: Medical disclaimers, emergency detection, and domain filtering
 
 ## 📊 Features
 
@@ -149,29 +162,75 @@ print(f"Confidence: {data['confidence']}")
 print(f"Domain Relevant: {data['domain_relevance']}")
 ```
 
-## 🎯 Model Fine-tuning
+## 🎯 Advanced Model Fine-tuning & Evaluation
 
-The project includes a Jupyter notebook for fine-tuning transformer models on healthcare data:
+### Training Pipeline
+
+The project includes a comprehensive training pipeline with hyperparameter optimization:
 
 ```bash
-# Start Jupyter
-jupyter notebook backend/notebooks/fine_tuning_pipeline.ipynb
+# Run the complete training pipeline
+cd backend
+python train_model.py
+
+# Run model evaluation
+python evaluate_model.py
 ```
 
 ### Fine-tuning Process
-1. **Data Preparation**: Healthcare conversation pairs
-2. **Model Selection**: DialoGPT for conversational AI
-3. **Training**: Fine-tune on healthcare domain data
-4. **Evaluation**: BLEU score and qualitative assessment
-5. **Deployment**: Save and load fine-tuned model
 
-## 📈 Performance Metrics
+1. **Data Preparation**: 
+   - 15+ diverse healthcare conversation scenarios
+   - Intent classification and domain labeling
+   - Text preprocessing and normalization
 
-- **BLEU Score**: Text generation quality assessment
-- **Confidence Score**: Model certainty (0.0 - 1.0)
-- **Domain Relevance**: Healthcare topic detection accuracy
-- **Response Time**: API latency monitoring
-- **Training Loss**: Model convergence tracking
+2. **Hyperparameter Optimization**:
+   - Learning rate tuning (1e-5 to 1e-4)
+   - Batch size optimization (2, 4, 8)
+   - Epoch selection with early stopping
+   - Weight decay and warmup steps
+
+3. **Model Training**:
+   - DialoGPT fine-tuning on healthcare data
+   - Domain-specific tokenization
+   - Multi-configuration comparison
+   - Best model selection based on validation metrics
+
+4. **Comprehensive Evaluation**:
+   - BLEU and ROUGE score calculation
+   - Domain relevance testing
+   - Intent classification accuracy
+   - Qualitative response analysis
+   - Safety and compliance assessment
+
+### Training Scripts
+
+- `train_model.py`: Complete training pipeline with hyperparameter tuning
+- `evaluate_model.py`: Comprehensive model evaluation
+- `training_pipeline.py`: Core training logic with metrics
+- `notebooks/fine_tuning_pipeline.ipynb`: Interactive Jupyter notebook
+
+## 📈 Advanced Performance Metrics
+
+### Quantitative Metrics
+- **BLEU Score**: Text generation quality assessment (target: >0.3)
+- **ROUGE-L**: Longest common subsequence evaluation (target: >0.4)
+- **Perplexity**: Model uncertainty measurement (lower is better)
+- **Confidence Score**: Model certainty for each response (0.0 - 1.0)
+- **Domain Relevance**: Healthcare topic detection accuracy (target: >90%)
+- **Intent Classification**: Query categorization accuracy (target: >85%)
+
+### Quality Assurance Metrics
+- **Medical Disclaimer Rate**: Percentage of responses with appropriate disclaimers
+- **Emergency Detection Rate**: Accuracy in identifying urgent medical situations
+- **Response Relevance**: Alignment between user intent and bot response
+- **Safety Compliance**: Adherence to medical safety guidelines
+
+### Training Performance
+- **Hyperparameter Optimization**: Automated tuning across 3+ configurations
+- **Training Loss**: Model convergence tracking with early stopping
+- **Validation Accuracy**: Performance on held-out test set
+- **Fine-tuning Progress**: Domain adaptation effectiveness
 
 ## 🛡️ Safety & Compliance
 

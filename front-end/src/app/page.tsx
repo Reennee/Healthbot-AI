@@ -11,7 +11,7 @@ export default function Home() {
     <div id="vanta-bg" className="bg-gray-50 min-h-screen flex flex-col">
       <VantaBackground />
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8 flex flex-col">
+      <main className="grow container mx-auto px-4 py-8 flex flex-col">
         <div className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col flex-grow">
           <Chat />
         </div>

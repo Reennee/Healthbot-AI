@@ -4,7 +4,8 @@ from transformers import (
     AutoModelForCausalLM,
     AutoModelForSeq2SeqLM,
     pipeline,
-    set_seed
+    set_seed,
+    TFAutoModelForCausalLM
 )
 import asyncio
 import uuid
@@ -13,6 +14,10 @@ import logging
 from datetime import datetime
 import json
 import os
+import numpy as np
+import evaluate
+from sklearn.metrics import f1_score, accuracy_score
+import re
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -21,23 +26,54 @@ logger = logging.getLogger(__name__)
 
 class HealthBot:
     """
-    Healthcare domain-specific chatbot using transformer models
+    Enhanced healthcare domain-specific chatbot using transformer models
+    with comprehensive evaluation metrics and fine-tuning capabilities
     """
 
-    def __init__(self, model_name: str = "microsoft/DialoGPT-medium"):
-        self.model_name = model_name
+    def __init__(self, model_name: str = "microsoft/DialoGPT-medium", use_fine_tuned: bool = False):
+        # Allow env overrides for framework and model directories
+        self.model_name = os.getenv("MODEL_NAME", model_name)
         self.model_type = "generative"  # or "extractive"
-        self.is_fine_tuned = False
+        self.is_fine_tuned = use_fine_tuned
+        self.model_framework = os.getenv("MODEL_FRAMEWORK", "pt").lower()  # 'pt' or 'tf'
+        self.fine_tuned_dir_tf = os.getenv("MODEL_DIR_TF", "./models_tf/final_healthcare_chatbot_tf")
+        self.fine_tuned_dir_pt = os.getenv("MODEL_DIR_PT", "./models/final_healthcare_chatbot")
         self.conversations: Dict[str, List[Dict]] = {}
+        self.evaluation_metrics = {}
+        
+        # Initialize evaluation metrics
+        try:
+            self.bleu_metric = evaluate.load("bleu")
+        except Exception:
+            logger.warning("BLEU metric not available, using fallback")
+            self.bleu_metric = None
+        
+        try:
+            self.rouge_metric = evaluate.load("rouge")
+        except Exception:
+            logger.warning("ROUGE metric not available, using fallback")
+            self.rouge_metric = None
 
-        # Healthcare domain keywords for relevance checking
+        # Enhanced healthcare domain keywords for relevance checking
         self.healthcare_keywords = {
             'symptoms', 'pain', 'fever', 'headache', 'cough', 'cold', 'flu',
             'medicine', 'medication', 'doctor', 'hospital', 'clinic', 'health',
             'disease', 'illness', 'treatment', 'diagnosis', 'therapy', 'recovery',
             'blood pressure', 'diabetes', 'heart', 'lung', 'stomach', 'skin',
             'mental health', 'anxiety', 'depression', 'stress', 'sleep',
-            'exercise', 'diet', 'nutrition', 'vitamins', 'supplements'
+            'exercise', 'diet', 'nutrition', 'vitamins', 'supplements',
+            'chest pain', 'breathing', 'emergency', 'urgent', 'severe',
+            'chronic', 'acute', 'infection', 'inflammation', 'allergy',
+            'vaccination', 'immunization', 'prevention', 'screening'
+        }
+        
+        # Intent classification keywords
+        self.intent_keywords = {
+            'symptom_inquiry': ['hurt', 'pain', 'ache', 'symptom', 'feel', 'sick'],
+            'emergency': ['emergency', 'urgent', 'severe', 'chest pain', 'can\'t breathe'],
+            'medication': ['medicine', 'drug', 'pill', 'prescription', 'dosage'],
+            'lifestyle': ['exercise', 'diet', 'sleep', 'stress', 'lifestyle'],
+            'prevention': ['prevent', 'avoid', 'reduce risk', 'healthy']
         }
 
         # Initialize model and tokenizer
@@ -46,34 +82,45 @@ class HealthBot:
     def _load_model(self):
         """Load the transformer model and tokenizer"""
         try:
-            logger.info(f"Loading model: {self.model_name}")
+            logger.info(f"Loading model: name={self.model_name}, framework={self.model_framework}")
 
-            # Try to load as causal LM first (GPT-style models)
-            try:
-                self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+            # Determine source: fine-tuned dir or hub model name
+            use_tf = self.model_framework == "tf"
+            load_path = None
+            if self.is_fine_tuned:
+                load_path = self.fine_tuned_dir_tf if use_tf else self.fine_tuned_dir_pt
+                if not os.path.exists(load_path):
+                    logger.warning(f"Fine-tuned directory not found: {load_path}. Falling back to hub model name.")
+                    load_path = None
+
+            source = load_path or self.model_name
+
+            # Try to load as causal LM first (GPT-style models) with selected framework
+            self.tokenizer = AutoTokenizer.from_pretrained(source)
+
+            if use_tf:
+                # TensorFlow causal LM
+                self.model = TFAutoModelForCausalLM.from_pretrained(source)
+                self.model_type = "generative"
+            else:
+                # PyTorch causal LM
                 self.model = AutoModelForCausalLM.from_pretrained(
-                    self.model_name,
-                    pad_token_id=self.tokenizer.eos_token_id
+                    source,
+                    pad_token_id=self.tokenizer.eos_token_id if self.tokenizer.eos_token_id is not None else None
                 )
                 self.model_type = "generative"
 
-                # Add padding token if not present
-                if self.tokenizer.pad_token is None:
-                    self.tokenizer.pad_token = self.tokenizer.eos_token
+            # Add padding token if not present
+            if self.tokenizer.pad_token is None and self.tokenizer.eos_token is not None:
+                self.tokenizer.pad_token = self.tokenizer.eos_token
 
-            except Exception:
-                # Fallback to seq2seq models (T5-style)
-                self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-                self.model = AutoModelForSeq2SeqLM.from_pretrained(
-                    self.model_name)
-                self.model_type = "seq2seq"
-
-            # Create text generation pipeline
+            # Create text generation pipeline (framework auto-detected by transformers)
+            device = 0 if (not use_tf and torch.cuda.is_available()) else -1
             self.generator = pipeline(
                 "text-generation",
                 model=self.model,
                 tokenizer=self.tokenizer,
-                device=0 if torch.cuda.is_available() else -1
+                device=device
             )
 
             logger.info(f"Model loaded successfully. Type: {self.model_type}")
@@ -266,3 +313,166 @@ class HealthBot:
         if os.path.exists(filepath):
             with open(filepath, 'r') as f:
                 self.conversations = json.load(f)
+    
+    def classify_intent(self, text: str) -> str:
+        """Classify user intent from input text"""
+        text_lower = text.lower()
+        
+        # Check for emergency keywords first
+        if any(keyword in text_lower for keyword in self.intent_keywords['emergency']):
+            return 'emergency'
+        
+        # Check other intents
+        for intent, keywords in self.intent_keywords.items():
+            if intent != 'emergency' and any(keyword in text_lower for keyword in keywords):
+                return intent
+        
+        return 'general_inquiry'
+    
+    def calculate_response_quality(self, user_input: str, bot_response: str) -> Dict:
+        """Calculate quality metrics for bot response"""
+        try:
+            # Basic metrics
+            response_length = len(bot_response.split())
+            input_length = len(user_input.split())
+            
+            # Check for medical disclaimers
+            has_disclaimer = any(phrase in bot_response.lower() for phrase in [
+                'consult', 'healthcare', 'doctor', 'medical', 'professional'
+            ])
+            
+            # Check for emergency guidance
+            has_emergency_guidance = any(phrase in bot_response.lower() for phrase in [
+                'emergency', 'urgent', 'immediately', 'call 911'
+            ])
+            
+            # Intent classification accuracy (simplified)
+            intent = self.classify_intent(user_input)
+            response_relevance = self._check_response_relevance(intent, bot_response)
+            
+            return {
+                'response_length': response_length,
+                'input_length': input_length,
+                'length_ratio': response_length / max(input_length, 1),
+                'has_disclaimer': has_disclaimer,
+                'has_emergency_guidance': has_emergency_guidance,
+                'intent': intent,
+                'response_relevance': response_relevance,
+                'timestamp': datetime.now().isoformat()
+            }
+        except Exception as e:
+            logger.error(f"Error calculating response quality: {e}")
+            return {'error': str(e)}
+    
+    def _check_response_relevance(self, intent: str, response: str) -> float:
+        """Check how relevant the response is to the detected intent"""
+        response_lower = response.lower()
+        
+        if intent == 'emergency':
+            emergency_indicators = ['emergency', 'urgent', 'immediately', 'call', '911']
+            return sum(1 for indicator in emergency_indicators if indicator in response_lower) / len(emergency_indicators)
+        
+        elif intent == 'symptom_inquiry':
+            symptom_indicators = ['symptom', 'pain', 'condition', 'cause', 'treatment']
+            return sum(1 for indicator in symptom_indicators if indicator in response_lower) / len(symptom_indicators)
+        
+        elif intent == 'medication':
+            medication_indicators = ['medication', 'medicine', 'drug', 'dosage', 'side effect']
+            return sum(1 for indicator in medication_indicators if indicator in response_lower) / len(medication_indicators)
+        
+        else:
+            # General relevance based on healthcare keywords
+            healthcare_indicators = list(self.healthcare_keywords)[:10]  # Use first 10 keywords
+            return sum(1 for indicator in healthcare_indicators if indicator in response_lower) / len(healthcare_indicators)
+    
+    def evaluate_model_performance(self, test_data: List[Dict]) -> Dict:
+        """Comprehensive model performance evaluation"""
+        logger.info("Evaluating model performance...")
+        
+        predictions = []
+        references = []
+        quality_scores = []
+        
+        for example in test_data:
+            user_input = example.get('user_input', '')
+            expected_output = example.get('assistant_output', '')
+            
+            # Generate response
+            try:
+                generated_response = self._generate_healthcare_response(user_input)
+                
+                # Calculate quality metrics
+                quality = self.calculate_response_quality(user_input, generated_response)
+                quality_scores.append(quality)
+                
+                predictions.append(generated_response)
+                references.append(expected_output)
+                
+            except Exception as e:
+                logger.error(f"Error generating response for: {user_input}")
+                continue
+        
+        # Calculate BLEU score
+        try:
+            bleu_results = self.bleu_metric.compute(
+                predictions=predictions,
+                references=references
+            )
+            bleu_score = bleu_results['bleu']
+        except Exception as e:
+            logger.error(f"Error calculating BLEU score: {e}")
+            bleu_score = 0.0
+        
+        # Calculate ROUGE score
+        try:
+            rouge_results = self.rouge_metric.compute(
+                predictions=predictions,
+                references=references
+            )
+            rouge_l = rouge_results['rougeL']
+        except Exception as e:
+            logger.error(f"Error calculating ROUGE score: {e}")
+            rouge_l = 0.0
+        
+        # Calculate average quality metrics
+        avg_quality = {
+            'avg_response_length': np.mean([q.get('response_length', 0) for q in quality_scores]),
+            'avg_length_ratio': np.mean([q.get('length_ratio', 0) for q in quality_scores]),
+            'disclaimer_rate': np.mean([q.get('has_disclaimer', False) for q in quality_scores]),
+            'emergency_guidance_rate': np.mean([q.get('has_emergency_guidance', False) for q in quality_scores]),
+            'avg_relevance': np.mean([q.get('response_relevance', 0) for q in quality_scores])
+        }
+        
+        # Store evaluation results
+        self.evaluation_metrics = {
+            'bleu_score': bleu_score,
+            'rouge_l': rouge_l,
+            'quality_metrics': avg_quality,
+            'total_samples': len(test_data),
+            'successful_predictions': len(predictions),
+            'evaluation_timestamp': datetime.now().isoformat()
+        }
+        
+        logger.info(f"Evaluation completed. BLEU: {bleu_score:.3f}, ROUGE-L: {rouge_l:.3f}")
+        
+        return self.evaluation_metrics
+    
+    def get_performance_summary(self) -> Dict:
+        """Get comprehensive performance summary"""
+        return {
+            'model_info': {
+                'model_name': self.model_name,
+                'model_type': self.model_type,
+                'is_fine_tuned': self.is_fine_tuned,
+                'is_ready': self.is_ready()
+            },
+            'evaluation_metrics': self.evaluation_metrics,
+            'conversation_stats': {
+                'total_conversations': len(self.conversations),
+                'total_messages': sum(len(conv) for conv in self.conversations.values())
+            },
+            'healthcare_domain_coverage': {
+                'keywords_covered': len(self.healthcare_keywords),
+                'intent_categories': len(self.intent_keywords)
+            }
+        }
