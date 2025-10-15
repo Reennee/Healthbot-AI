@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict
 import uvicorn
 import os
 from dotenv import load_dotenv
@@ -16,17 +16,25 @@ app = FastAPI(
 )
 
 # CORS middleware for frontend integration
+# Relax CORS for development to avoid preflight 400s from unknown Origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000",
-                   "http://localhost:3001"],  # Frontend URLs
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Initialize the chatbot
-healthbot = HealthBot()
+# Model can be configured via environment variable MODEL_NAME
+# See MODEL_GUIDE.md for recommended models
+# Examples:
+#   - microsoft/biogpt (healthcare-focused, recommended)
+#   - microsoft/DialoGPT-large (better quality)
+#   - gpt2-large (general purpose, larger)
+model_name = os.getenv("MODEL_NAME", "microsoft/DialoGPT-medium")
+use_fine_tuned = os.getenv("USE_FINE_TUNED", "false").lower() == "true"
+healthbot = HealthBot(model_name=model_name, use_fine_tuned=use_fine_tuned)
 
 
 class ChatMessage(BaseModel):
@@ -131,6 +139,71 @@ async def model_info():
             "General health advice"
         ]
     }
+
+
+@app.get("/model/performance")
+async def get_model_performance():
+    """
+    Get comprehensive model performance metrics
+    """
+    try:
+        performance_summary = healthbot.get_performance_summary()
+        return performance_summary
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error retrieving performance metrics: {str(e)}")
+
+
+@app.post("/model/evaluate")
+async def evaluate_model(test_data: List[Dict]):
+    """
+    Evaluate model performance with test data
+    """
+    try:
+        evaluation_results = healthbot.evaluate_model_performance(test_data)
+        return evaluation_results
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error evaluating model: {str(e)}")
+
+
+@app.get("/model/metrics")
+async def get_evaluation_metrics():
+    """
+    Get current evaluation metrics
+    """
+    try:
+        return healthbot.evaluation_metrics
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error retrieving metrics: {str(e)}")
+
+
+@app.post("/chat/quality")
+async def analyze_response_quality(chat_message: ChatMessage):
+    """
+    Analyze the quality of a chat response
+    """
+    try:
+        # Generate response
+        response = await healthbot.generate_response(
+            message=chat_message.message,
+            conversation_id=chat_message.conversation_id
+        )
+        
+        # Calculate quality metrics
+        quality_metrics = healthbot.calculate_response_quality(
+            chat_message.message, 
+            response['response']
+        )
+        
+        return {
+            "response": response,
+            "quality_metrics": quality_metrics
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error analyzing response quality: {str(e)}")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

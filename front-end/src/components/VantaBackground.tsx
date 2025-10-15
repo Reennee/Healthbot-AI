@@ -20,8 +20,8 @@ export default function VantaBackground() {
       minWidth: 200.0,
       scale: 1.0,
       scaleMobile: 1.0,
-      color: 0x4f46e5,
-      backgroundColor: 0xf3f4f6,
+      color: 0x6366f1,
+      backgroundColor: 0x111827,
       size: 0.8,
     });
     return () => {

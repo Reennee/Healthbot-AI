@@ -24,6 +24,12 @@ export interface SymptomAnalysis {
   domain_relevance: boolean;
 }
 
+export interface EvaluationSample {
+  user_input: string;
+  assistant_output: string;
+  intent?: string;
+}
+
 class HealthBotAPI {
   private baseUrl: string;
 
@@ -145,6 +151,81 @@ class HealthBotAPI {
       return await response.json();
     } catch (error) {
       console.error("Health check API error:", error);
+      throw error;
+    }
+  }
+
+  async chatWithQuality(message: string, conversationId?: string) {
+    try {
+      const response = await fetch(`${this.baseUrl}/chat/quality`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message,
+          conversation_id: conversationId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Chat with quality API error:", error);
+      throw error;
+    }
+  }
+
+  async getModelPerformance() {
+    try {
+      const response = await fetch(`${this.baseUrl}/model/performance`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Model performance API error:", error);
+      throw error;
+    }
+  }
+
+  async getEvaluationMetrics() {
+    try {
+      const response = await fetch(`${this.baseUrl}/model/metrics`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Evaluation metrics API error:", error);
+      throw error;
+    }
+  }
+
+  async evaluateModel(testData: EvaluationSample[]) {
+    try {
+      const response = await fetch(`${this.baseUrl}/model/evaluate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(testData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Model evaluation API error:", error);
       throw error;
     }
   }

@@ -49,6 +49,216 @@
     "messages": [
       {
         "role": "user",
+        "content": "What are the symptoms of diabetes?",
+        "intent": "condition_inquiry"
+      },
+      {
+        "role": "assistant",
+        "content": "Common symptoms of diabetes include increased thirst, frequent urination, extreme fatigue, blurred vision, slow-healing sores, and unexplained weight loss. If you experience these symptoms, consult a healthcare provider for proper testing and diagnosis.",
+        "intent": "condition_education"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_005",
+    "messages": [
+      {
+        "role": "user",
+        "content": "How can I lower my blood pressure naturally?",
+        "intent": "lifestyle_advice"
+      },
+      {
+        "role": "assistant",
+        "content": "To lower blood pressure naturally: maintain a healthy diet low in sodium, exercise regularly, maintain a healthy weight, limit alcohol, quit smoking, manage stress, and get adequate sleep. Always consult your doctor before making significant lifestyle changes.",
+        "intent": "lifestyle_guidance"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_006",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What medications are used to treat high blood pressure?",
+        "intent": "medication_inquiry"
+      },
+      {
+        "role": "assistant",
+        "content": "Common blood pressure medications include ACE inhibitors, beta-blockers, diuretics, calcium channel blockers, and ARBs. The choice depends on your specific condition and other health factors. Only a healthcare provider can prescribe the appropriate medication for you.",
+        "intent": "medication_education"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_007",
+    "messages": [
+      {
+        "role": "user",
+        "content": "I have a sore throat and difficulty swallowing. What should I do?",
+        "intent": "symptom_inquiry"
+      },
+      {
+        "role": "assistant",
+        "content": "Sore throat with difficulty swallowing can indicate various conditions from viral infections to more serious issues. Try warm salt water gargles, stay hydrated, and use throat lozenges. If symptoms persist beyond a week, worsen, or are accompanied by fever, see a healthcare provider.",
+        "intent": "symptom_analysis"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_008",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What are the benefits of regular exercise for heart health?",
+        "intent": "prevention_inquiry"
+      },
+      {
+        "role": "assistant",
+        "content": "Regular exercise strengthens your heart muscle, improves circulation, helps control blood pressure and cholesterol, reduces stress, and helps maintain a healthy weight. Aim for at least 150 minutes of moderate-intensity exercise per week, but consult your doctor before starting any new exercise program.",
+        "intent": "prevention_education"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_009",
+    "messages": [
+      {
+        "role": "user",
+        "content": "I'm feeling anxious and having trouble sleeping. Is this normal?",
+        "intent": "mental_health_inquiry"
+      },
+      {
+        "role": "assistant",
+        "content": "Anxiety and sleep difficulties are common and often related. Try relaxation techniques, maintain a regular sleep schedule, limit caffeine, and create a calming bedtime routine. If these symptoms persist or significantly impact your daily life, consider speaking with a mental health professional.",
+        "intent": "mental_health_guidance"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_010",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What should I do if I think I have COVID-19?",
+        "intent": "emergency_inquiry"
+      },
+      {
+        "role": "assistant",
+        "content": "If you suspect COVID-19, isolate yourself, monitor symptoms, get tested, and contact your healthcare provider. Seek immediate medical attention if you have severe symptoms like difficulty breathing, persistent chest pain, or confusion. Follow current CDC guidelines for isolation and treatment.",
+        "intent": "emergency_guidance"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_011",
+    "messages": [
+      {
+        "role": "user",
+        "content": "How often should I get a physical exam?",
+        "intent": "preventive_care"
+      },
+      {
+        "role": "assistant",
+        "content": "Adults should generally have a physical exam every 1-3 years depending on age and health status. Those over 50 or with chronic conditions may need annual exams. Your healthcare provider can recommend the appropriate frequency based on your individual health needs and risk factors.",
+        "intent": "preventive_guidance"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_012",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What are the side effects of taking too much ibuprofen?",
+        "intent": "medication_safety"
+      },
+      {
+        "role": "assistant",
+        "content": "Excessive ibuprofen can cause stomach ulcers, kidney problems, liver damage, and increased bleeding risk. Never exceed the recommended dosage and duration. If you experience severe stomach pain, nausea, vomiting blood, or signs of liver problems, seek immediate medical attention.",
+        "intent": "medication_safety_guidance"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_013",
+    "messages": [
+      {
+        "role": "user",
+        "content": "I have a persistent cough for 3 weeks. Should I be concerned?",
+        "intent": "symptom_inquiry"
+      },
+      {
+        "role": "assistant",
+        "content": "A persistent cough lasting more than 3 weeks should be evaluated by a healthcare provider, especially if accompanied by fever, chest pain, shortness of breath, or blood in sputum. This could indicate various conditions from post-viral cough to more serious respiratory issues.",
+        "intent": "symptom_analysis"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_014",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What foods should I avoid if I have high cholesterol?",
+        "intent": "dietary_advice"
+      },
+      {
+        "role": "assistant",
+        "content": "To manage high cholesterol, limit saturated fats (found in red meat, full-fat dairy), trans fats (processed foods), and dietary cholesterol. Focus on fruits, vegetables, whole grains, lean proteins, and healthy fats like olive oil and nuts. Consult a dietitian for personalized dietary advice.",
+        "intent": "dietary_guidance"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_015",
+    "messages": [
+      {
+        "role": "user",
+        "content": "I have a mole that's changed color and size. What should I do?",
+        "intent": "dermatology_inquiry"
+      },
+      {
+        "role": "assistant",
+        "content": "Any changes in moles (size, color, shape, or texture) should be evaluated by a dermatologist promptly. Use the ABCDE rule: Asymmetry, Border irregularity, Color variation, Diameter >6mm, Evolving. Early detection of skin cancer is crucial for successful treatment.",
+        "intent": "dermatology_guidance"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_002",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What should I do if I have a fever?",
+        "intent": "symptom_inquiry"
+      },
+      {
+        "role": "assistant",
+        "content": "For fever management: rest, stay hydrated, use fever-reducing medications like acetaminophen or ibuprofen as directed, and monitor your temperature. Seek medical attention if fever exceeds 103°F (39.4°C), persists beyond 3 days, or is accompanied by severe symptoms.",
+        "intent": "treatment_advice"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_003",
+    "messages": [
+      {
+        "role": "user",
+        "content": "I have chest pain. Should I be worried?",
+        "intent": "emergency_inquiry"
+      },
+      {
+        "role": "assistant",
+        "content": "Chest pain can be serious and should not be ignored. If you're experiencing severe chest pain, especially with shortness of breath, sweating, or pain radiating to your arm or jaw, seek immediate medical attention or call emergency services. It's always better to be evaluated by a healthcare professional for chest pain.",
+        "intent": "emergency_guidance"
+      }
+    ]
+  },
+  {
+    "conversation_id": "conv_004",
+    "messages": [
+      {
+        "role": "user",
         "content": "What are the benefits of regular exercise for health?",
         "intent": "health_education"
       },
