@@ -26,12 +26,7 @@ app.add_middleware(
 )
 
 # Initialize the chatbot
-# Model can be configured via environment variable MODEL_NAME
-# See MODEL_GUIDE.md for recommended models
-# Examples:
-#   - microsoft/biogpt (healthcare-focused, recommended)
-#   - microsoft/DialoGPT-large (better quality)
-#   - gpt2-large (general purpose, larger)
+
 model_name = os.getenv("MODEL_NAME", "microsoft/DialoGPT-medium")
 use_fine_tuned = os.getenv("USE_FINE_TUNED", "false").lower() == "true"
 healthbot = HealthBot(model_name=model_name, use_fine_tuned=use_fine_tuned)
