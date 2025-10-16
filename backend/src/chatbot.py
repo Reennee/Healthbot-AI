@@ -1,21 +1,36 @@
 
 from typing import Dict, List, Optional
-import torch
-from transformers import (
-    AutoTokenizer,
-    AutoModelForCausalLM,
-    pipeline,
-    TFAutoModelForCausalLM,
-    GenerationConfig
-)
 import uuid
 import logging
 from datetime import datetime
 import json
 import os
-import numpy as np
-import evaluate
 from difflib import get_close_matches
+
+# Optional ML imports - only needed when loading models
+try:
+    import torch
+    from transformers import (
+        AutoTokenizer,
+        AutoModelForCausalLM,
+        pipeline,
+        TFAutoModelForCausalLM,
+        GenerationConfig
+    )
+    import numpy as np
+    import evaluate
+    ML_AVAILABLE = True
+except ImportError:
+    ML_AVAILABLE = False
+    # Provide dummy classes for when ML libraries aren't available
+    torch = None
+    AutoTokenizer = None
+    AutoModelForCausalLM = None
+    pipeline = None
+    TFAutoModelForCausalLM = None
+    GenerationConfig = None
+    np = None
+    evaluate = None
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -43,17 +58,21 @@ class HealthBot:
         self.tokenizer = None
         self.generator = None
 
-        # Metrics may 
-        try:
-            self.bleu_metric = evaluate.load("bleu")
-        except Exception:
-            logger.warning("BLEU metric not available, using fallback")
-            self.bleu_metric = None
+        # Metrics may not be available in deployment
+        if ML_AVAILABLE and evaluate:
+            try:
+                self.bleu_metric = evaluate.load("bleu")
+            except Exception:
+                logger.warning("BLEU metric not available, using fallback")
+                self.bleu_metric = None
 
-        try:
-            self.rouge_metric = evaluate.load("rouge")
-        except Exception:
-            logger.warning("ROUGE metric not available, using fallback")
+            try:
+                self.rouge_metric = evaluate.load("rouge")
+            except Exception:
+                logger.warning("ROUGE metric not available, using fallback")
+                self.rouge_metric = None
+        else:
+            self.bleu_metric = None
             self.rouge_metric = None
 
         self.healthcare_keywords = {

@@ -1,0 +1,10 @@
+{
+    "name": "healthbot-ai-monorepo",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "build": "cd front-end && npm install && npm run build",
+        "dev": "cd front-end && npm run dev",
+        "start": "cd front-end && npm start"
+    }
+}

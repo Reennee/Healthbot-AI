@@ -29,7 +29,9 @@ app.add_middleware(
 
 model_name = os.getenv("MODEL_NAME", "microsoft/DialoGPT-medium")
 use_fine_tuned = os.getenv("USE_FINE_TUNED", "false").lower() == "true"
-healthbot = HealthBot(model_name=model_name, use_fine_tuned=use_fine_tuned)
+# Skip model loading on Vercel to avoid serverless function size limits
+load_model = os.getenv("LOAD_MODEL", "true").lower() == "true"
+healthbot = HealthBot(model_name=model_name, use_fine_tuned=use_fine_tuned, load_model=load_model)
 
 
 class ChatMessage(BaseModel):
