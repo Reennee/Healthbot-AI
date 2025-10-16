@@ -1,6 +1,6 @@
 # HealthBot AI - Advanced Healthcare Domain Chatbot
 
-A comprehensive, production-ready healthcare domain-specific chatbot built with Next.js frontend and FastAPI backend, powered by fine-tuned transformer models from Hugging Face. This project demonstrates advanced NLP techniques including hyperparameter tuning, comprehensive evaluation metrics, and domain-specific optimization.
+A comprehensive, production-ready healthcare domain-specific chatbot built with Next.js frontend and FastAPI backend, powered by a fine-tuned transformer model from Hugging Face. This project demonstrates advanced NLP techniques including hyperparameter tuning, comprehensive evaluation metrics, and domain-specific optimization.
 
 ## 🏥 Project Overview
 
@@ -72,7 +72,6 @@ Healthbot-AI/
 │   │   ├── main.py             # FastAPI application
 │   │   └── chatbot.py          # HealthBot AI logic
 │   ├── data/                   # Training datasets
-│   ├── notebooks/              # Jupyter notebooks
 │   ├── models/                 # Saved model checkpoints
 │   └── requirements.txt
 ├── front-end-legacy/           # Original HTML implementation
@@ -145,23 +144,6 @@ Once the backend is running, visit `http://localhost:8000/docs` for interactive 
 - `GET /model/info` - Get model information and capabilities
 - `GET /health` - API health check
 
-### Example API Usage
-
-```python
-import requests
-
-# Send a chat message
-response = requests.post("http://localhost:8000/chat", json={
-    "message": "I have a headache that's been going on for 3 days",
-    "conversation_id": None
-})
-
-data = response.json()
-print(f"Response: {data['response']}")
-print(f"Confidence: {data['confidence']}")
-print(f"Domain Relevant: {data['domain_relevance']}")
-```
-
 ## 🎯 Advanced Model Fine-tuning & Evaluation
 
 ### Training Pipeline
@@ -171,7 +153,7 @@ The project includes a comprehensive training pipeline with hyperparameter optim
 ```bash
 # Run the complete training pipeline
 cd backend
-python train_model.py
+python training_pipeline_pt.py
 ```
 
 ### Fine-tuning Process
@@ -202,10 +184,7 @@ python train_model.py
 
 ### Training Scripts
 
-- `train_model.py`: Complete training pipeline with hyperparameter tuning
-- `evaluate_model.py` has been removed – evaluation now runs during training and results are saved automatically.
-- `training_pipeline.py`: Core training logic with metrics
-- `notebooks/fine_tuning_pipeline.ipynb`: Interactive Jupyter notebook
+- `training_pipeline_pt.py`: Complete training pipeline with hyperparameter tuning
 
 ## 📈 Advanced Performance Metrics
 
@@ -247,7 +226,7 @@ python train_model.py
 - Provides helpful redirection for off-topic queries
 
 ## 🚀 Deployment
-
+- vercel
 ### Development
 ```bash
 # Backend
@@ -256,13 +235,6 @@ cd backend && python -m src.main
 # Frontend
 cd front-end && npm run dev
 ```
-
-### Production Considerations
-- Use GPU instances for model inference
-- Implement rate limiting and authentication
-- Set up monitoring and logging
-- Use HTTPS for secure communication
-- Consider model optimization and caching
 
 ## 📚 Educational Value
 
@@ -305,45 +277,3 @@ npm test
 2. Open browser to `http://localhost:3000`
 3. Test various healthcare queries
 4. Verify error handling and fallbacks
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is for educational purposes. See the LICENSE file for details.
-
-## ⚠️ Important Notes
-
-### Medical Disclaimer
-This chatbot is designed for educational and informational purposes only. It is not intended to:
-- Replace professional medical advice
-- Provide medical diagnoses
-- Recommend specific treatments
-- Handle medical emergencies
-
-Always consult qualified healthcare professionals for medical concerns.
-
-### Ethical AI
-This project follows responsible AI principles:
-- Transparent about capabilities and limitations
-- Includes appropriate disclaimers
-- Respects user privacy and data
-- Maintains safety boundaries
-
-## 📞 Support
-
-For questions or issues:
-1. Check the documentation in `/backend/README.md`
-2. Review the API documentation at `http://localhost:8000/docs`
-3. Open an issue in the repository
-4. Contact the development team
-
----
-
-**Built with ❤️ for healthcare education and AI research**

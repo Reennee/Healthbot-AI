@@ -29,14 +29,7 @@ class HealthBot:
     - Uses light-weight heuristics and fallback responses when model is unavailable.
     """
 
-    def __init__(self, model_name: str = "microsoft/DialoGPT-medium", use_fine_tuned: bool = False, load_model: bool = True):
-        """Initialize the chatbot.
-
-        Args:
-            model_name: hub model name to use when no fine-tuned model is provided.
-            use_fine_tuned: whether to attempt loading a fine-tuned model from disk.
-            load_model: if False, skip loading the transformers model (useful for tests/offline ops).
-        """
+    def __init__(self, model_name: str = "microsoft/BioGPT-large", use_fine_tuned: bool = False, load_model: bool = True):
         self.model_name = os.getenv("MODEL_NAME", model_name)
         self.model_type = "generative"
         self.is_fine_tuned = use_fine_tuned
@@ -50,7 +43,7 @@ class HealthBot:
         self.tokenizer = None
         self.generator = None
 
-        # Metrics may not be available in some environments (offline), keep optional
+        # Metrics may 
         try:
             self.bleu_metric = evaluate.load("bleu")
         except Exception:
@@ -150,8 +143,6 @@ class HealthBot:
                 tokenizer=self.tokenizer,
                 device=device
             )
-
-            logger.info(f"Model loaded successfully. Type: {self.model_type}")
 
         except Exception as e:
             logger.error(f"Error loading model: {e}")
@@ -383,10 +374,10 @@ class HealthBot:
         return "".join(history_items)
 
     def _check_domain_relevance(self, text: str) -> bool:
-        """Check if the input is healthcare-related - accept all questions unless clearly non-healthcare"""
+        """Check if the input is healthcare-related"""
         text_lower = text.lower().strip()
         
-        # List of clearly non-healthcare topics to reject
+        # First, explicitly reject clearly non-healthcare topics
         non_healthcare_keywords = [
             'weather', 'forecast', 'temperature outside', 'rain', 'snow',
             'cooking', 'recipe', 'how to cook', 'baking',
@@ -399,14 +390,54 @@ class HealthBot:
             'technology', 'computer', 'software', 'programming', 'code',
             'car', 'vehicle', 'automobile', 'driving',
             'stock', 'market', 'investment', 'trading',
-            'restaurant', 'food delivery', 'menu item'
+            'restaurant', 'food delivery', 'menu item',
+            'math', 'calculate', '1+1', 'leader of', 'capital of', 'who is the'
         ]
         
         # If it contains clearly non-healthcare keywords, reject it
         if any(non_keyword in text_lower for non_keyword in non_healthcare_keywords):
             return False
         
-        # Accept everything else - assume it's healthcare-related
+        # Check for healthcare-related keywords (expanded list)
+        healthcare_keywords = [
+            # Symptoms & conditions
+            'symptom', 'pain', 'ache', 'hurt', 'feel', 'sick', 'ill', 'disease', 'condition',
+            'fever', 'cough', 'headache', 'nausea', 'vomit', 'diarrhea', 'constipat', 'dizz',
+            'fatigue', 'tired', 'weak', 'bleed', 'rash', 'itch', 'swell', 'inflam',
+            # Medical terms
+            'health', 'medical', 'doctor', 'physician', 'hospital', 'clinic', 'nurse',
+            'diagnos', 'treatment', 'therap', 'medicine', 'medication', 'drug', 'pill',
+            'prescription', 'dosage', 'antibiotic', 'vaccine', 'injection',
+            # Body parts
+            'head', 'brain', 'heart', 'lung', 'stomach', 'liver', 'kidney', 'bone',
+            'muscle', 'joint', 'skin', 'blood', 'chest', 'back', 'throat',
+            # Actions/states
+            'breathing', 'breathe', 'eating', 'sleeping', 'sleep', 'exercise', 'diet',
+            'nutrition', 'fitness', 'weight', 'lose weight', 'gain weight',
+            # Specific conditions
+            'diabetes', 'asthma', 'cancer', 'hypertension', 'pressure', 'allerg',
+            'migraine', 'arthritis', 'depression', 'anxiety', 'stress', 'mental health',
+            'covid', 'flu', 'cold', 'infection', 'virus', 'bacteria'
+        ]
+        
+        # If it has healthcare keywords, accept it
+        if any(keyword in text_lower for keyword in healthcare_keywords):
+            return True
+        
+        # For short queries without clear healthcare keywords, be conservative and reject
+        if len(text.split()) < 4:
+            return False
+        
+        # For longer queries, be slightly more lenient but still require some health context
+        # Check if it sounds like a health question (has question words + could be health-related)
+        question_words = ['what', 'how', 'why', 'when', 'where', 'can', 'should', 'is', 'are']
+        has_question_word = any(text_lower.startswith(word) for word in question_words)
+        
+        if has_question_word:
+            # If it's a question but has no healthcare keywords, probably not healthcare
+            return False
+        
+        # Otherwise accept (benefit of the doubt for conversational flow)
         return True
 
     def _generate_healthcare_response(self, message: str, conversation_id: Optional[str] = None) -> tuple[str, bool]:
@@ -537,10 +568,22 @@ class HealthBot:
                 else:
                     response_text = generated_text.strip()
 
+
             response_text = self._clean_response(response_text)
 
             # Check if response is valid and helpful
             if response_text and len(response_text.strip()) > 0:
+                # Check if the response is just echoing the question
+                # Remove common filler words and compare
+                response_words = set(response_text.lower().split())
+                message_words = set(message.lower().split())
+                # If more than 60% of response words are from the question, it's likely an echo
+                if len(response_words) > 0:
+                    overlap = len(response_words & message_words)
+                    if overlap / len(response_words) > 0.6:
+                        logger.warning(f"Model echoed the question: {response_text[:100]}")
+                        return self._get_fallback_response(message), True
+                
                 # Reject if the model is asking a question instead of answering
                 if self._is_question_response(response_text):
                     logger.warning(f"Model asked a question instead of answering: {response_text[:100]}")
@@ -839,6 +882,19 @@ class HealthBot:
         if not has_healthcare_keyword and len(response.split()) < 15:
             conversational_unhelpful = ['yes, but', 'i\'m sorry', 'not sure', 'how that will help', 'sir', 'ma\'am']
             if any(phrase in response_lower for phrase in conversational_unhelpful):
+                return True
+        
+        
+        # Reject vague medical research-style responses that don't answer the question
+        vague_medical_phrases = [
+            'is an important part', 'may help', 'treatment plan', 'patient\'s',
+            'research suggests', 'studies show', 'evidence suggests', 'data indicates',
+            'associated with', 'risk factors include', 'commonly used'
+        ]
+        
+        # If response is short AND contains vague medical language, it's likely unhelpful
+        if len(response.split()) < 15:
+            if any(phrase in response_lower for phrase in vague_medical_phrases):
                 return True
         
         # Reject very short single-sentence responses that lack healthcare content
