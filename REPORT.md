@@ -1,5 +1,4 @@
 # Domain-Specific Chatbot Using Transformer Models (Healthcare)
-## DEMO: [![Video](thumbnail.png)](demo/DEMO.mp4)
 ## 1. Project Definition & Domain Alignment
 - Purpose: Provide healthcare information, symptom guidance, medication education, and safety reminders.
 - Scope: Non-diagnostic guidance with clear disclaimers; recognizes emergencies and out-of-domain queries.

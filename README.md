@@ -2,6 +2,8 @@
 
 A comprehensive, production-ready healthcare domain-specific chatbot built with Next.js frontend and FastAPI backend, powered by a fine-tuned transformer model from Hugging Face. This project demonstrates advanced NLP techniques including hyperparameter tuning, comprehensive evaluation metrics, and domain-specific optimization.
 
+## DEMO: [![Video](thumbnail.png)](https://drive.google.com/file/d/1Zfd6Siod5qrKY5hW5DfQ1oACeAI5xbRh/view?usp=sharing)
+
 ## 🏥 Project Overview
 
 This project implements an advanced healthcare chatbot that provides:
