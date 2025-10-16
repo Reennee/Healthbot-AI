@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pydantic
+python-dotenv
+transformers
+torch
+evaluate
+numpy
+scikit-learn
+sacremoses

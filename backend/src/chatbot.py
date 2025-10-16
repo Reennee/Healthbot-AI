@@ -41,7 +41,6 @@ class HealthBot:
         self.model_type = "generative"
         self.is_fine_tuned = use_fine_tuned
         self.model_framework = os.getenv("MODEL_FRAMEWORK", "pt").lower()
-        self.fine_tuned_dir_tf = os.getenv("MODEL_DIR_TF", "./models_tf/final_healthcare_chatbot_tf")
         self.fine_tuned_dir_pt = os.getenv("MODEL_DIR_PT", "./models/final_healthcare_chatbot")
         self.conversations: Dict[str, List[Dict]] = {}
         self.evaluation_metrics: Dict = {}
@@ -88,23 +87,6 @@ class HealthBot:
             'prevention': ['prevent', 'avoid', 'reduce risk', 'healthy', 'protect']
         }
 
-        # Auto-detect fine-tuned models on disk if available (convenience)
-        # DISABLED: This was causing it to load an old DialoGPT model instead of BioGPT
-        # try:
-        #     if not use_fine_tuned:
-        #         if os.path.exists(self.fine_tuned_dir_tf):
-        #             logger.info(f"Found fine-tuned TF model at {self.fine_tuned_dir_tf}, enabling fine-tuned loading.")
-        #             use_fine_tuned = True
-        #             self.model_framework = "tf"
-        #         elif os.path.exists(self.fine_tuned_dir_pt):
-        #             logger.info(f"Found fine-tuned PT model at {self.fine_tuned_dir_pt}, enabling fine-tuned loading.")
-        #             use_fine_tuned = True
-        #             self.model_framework = "pt"
-        # except Exception:
-        #     # If any filesystem check fails, continue without auto-detect
-        #     pass
-
-        # A lookup table for misspellings will be built lazily in _build_spelling_lookup
         self._spelling_lookup: Optional[Dict[str, str]] = None
 
         # Load model only when requested (tests can set load_model=False)
@@ -141,12 +123,21 @@ class HealthBot:
                 self.model_type = "generative"
             else:
                 # Use safetensors to bypass torch.load security restriction
-                self.model = AutoModelForCausalLM.from_pretrained(
-                    source,
-                    pad_token_id=self.tokenizer.eos_token_id if self.tokenizer.eos_token_id is not None else None,
-                    local_files_only=is_local,
-                    use_safetensors=True
-                )
+                try:
+                    self.model = AutoModelForCausalLM.from_pretrained(
+                        source,
+                        pad_token_id=self.tokenizer.eos_token_id if self.tokenizer.eos_token_id is not None else None,
+                        local_files_only=is_local,
+                        use_safetensors=True
+                    )
+                except Exception as e:
+                    logger.warning(f"Failed to load with safetensors: {e}. Retrying with use_safetensors=False")
+                    self.model = AutoModelForCausalLM.from_pretrained(
+                        source,
+                        pad_token_id=self.tokenizer.eos_token_id if self.tokenizer.eos_token_id is not None else None,
+                        local_files_only=is_local,
+                        use_safetensors=False
+                    )
                 self.model_type = "generative"
 
             if self.tokenizer.pad_token is None and self.tokenizer.eos_token is not None:
@@ -346,7 +337,15 @@ class HealthBot:
         conv = self.conversations.get(conversation_id, [])
         
         # Start with the current message
-        current_prompt = f"User: {user_message}\nBot:"
+        # Use EOS token as separator if available, otherwise newline
+        eos = self.tokenizer.eos_token if self.tokenizer.eos_token else "\n"
+        
+        # For DialoGPT, it expects: User input + EOS + Bot response + EOS
+        # We'll format it as: User: <input> EOS Bot: <response> EOS
+        # But base DialoGPT is trained on Reddit, so "User:"/"Bot:" might not be native.
+        # However, forcing a structure helps.
+        
+        current_prompt = f"User: {user_message}{eos}Bot:"
         current_tokens = len(self.tokenizer.encode(current_prompt))
         
         # Iterate backwards through history
@@ -355,27 +354,33 @@ class HealthBot:
             text = msg.get('message', '')
             
             if role == 'user':
-                line = f"User: {text}"
+                line = f"User: {text}{eos}"
             else:
-                line = f"Bot: {text}"
+                line = f"Bot: {text}{eos}"
             
             line_tokens = len(self.tokenizer.encode(line))
             
-            if current_tokens + line_tokens + 1 > max_tokens: # +1 for newline
+            if current_tokens + line_tokens + 1 > max_tokens:
                 break
             
             history_items.insert(0, line)
-            current_tokens += line_tokens + 1
+            current_tokens += line_tokens
             
         # Seed with persona if history is short/empty to guide the model
         if len(history_items) < 2:
-            seed_user = "User: Hello, who are you?"
-            seed_bot = "Bot: I am a helpful AI medical assistant. I can answer your questions about symptoms, medications, and health."
-            history_items.insert(0, seed_bot)
-            history_items.insert(0, seed_user)
+            # Stronger seed for healthcare context
+            seed_interactions = [
+                f"User: Hello, who are you?{eos}Bot: I am a helpful AI medical assistant. I can answer your questions about symptoms, medications, and health.{eos}",
+                f"User: What is a fever?{eos}Bot: A fever is a temporary increase in your body's temperature, often due to an illness. It is a sign that your body's immune system is fighting an infection.{eos}",
+                f"User: I have a headache.{eos}Bot: Common causes of headaches include stress, dehydration, or lack of sleep. If it is severe or sudden, please seek medical attention.{eos}"
+            ]
+            for seed in reversed(seed_interactions):
+                if current_tokens + len(self.tokenizer.encode(seed)) < max_tokens:
+                    history_items.insert(0, seed)
+                    current_tokens += len(self.tokenizer.encode(seed))
 
         history_items.append(current_prompt)
-        return "\n".join(history_items)
+        return "".join(history_items)
 
     def _check_domain_relevance(self, text: str) -> bool:
         """Check if the input is healthcare-related - accept all questions unless clearly non-healthcare"""
@@ -460,18 +465,13 @@ class HealthBot:
                 # BioGPT and other generation models work best with completion prompts
                 # We'll use a simple QA format or just the question if it's a completion model
                 if 'bio' in self.model_name.lower():
-                    # BioGPT works best with few-shot prompting to establish the pattern
-                    if message.endswith('?'):
-                        input_text = (
-                            "Question: What is a fever?\n"
-                            "Answer: A fever is a temporary increase in your body's temperature, often due to an illness.\n"
-                            "Question: What is hypertension?\n"
-                            "Answer: Hypertension (high blood pressure) is a common condition in which the long-term force of the blood against your artery walls is high enough that it may eventually cause health problems.\n"
-                            f"Question: {message}\n"
-                            "Answer:"
-                        )
-                    else:
-                        input_text = f"{message}"
+                    # BioGPT needs a clear example to know it should answer the question, not complete a paper title
+                    input_text = (
+                        "Question: What is the treatment for headache?\n"
+                        "Answer: Common treatments include rest, hydration, and over-the-counter pain relievers like ibuprofen or acetaminophen.\n"
+                        f"Question: {message}\n"
+                        "Answer:"
+                    )
                 else:
                     if domain == 'healthcare':
                         input_text = (
@@ -484,6 +484,12 @@ class HealthBot:
                             f"You are a registered dietitian. Give clear, evidence-based nutrition advice and suggestions.\n\nQuestion: {message}\n\nAnswer:")
                     else:
                         input_text = f"Answer this question clearly and helpfully: {message}"
+
+            # Adjust generation parameters for BioGPT to be less random
+            if 'bio' in self.model_name.lower():
+                temperature = 0.5
+                repetition_penalty = 1.1
+                top_p = 0.9
 
             generation_config = GenerationConfig(
                 max_new_tokens=max_new_tokens,
@@ -509,7 +515,8 @@ class HealthBot:
             if getattr(generation_config, 'eos_token_id', None) is not None:
                 gen_kwargs['eos_token_id'] = generation_config.eos_token_id
 
-            response = self.generator(input_text, **gen_kwargs)
+            # return_full_text=False ensures we only get the new tokens, not the prompt
+            response = self.generator(input_text, return_full_text=False, **gen_kwargs)
             generated_text = response[0].get('generated_text', '')
             logger.info(f"Raw generated text (first 500 chars): {generated_text[:500]}...")
 
@@ -808,27 +815,35 @@ class HealthBot:
             'systematic review', 'meta-analysis', 'further research', 'more studies needed',
             'literature suggests', 'studies have shown', 'research indicates',
             'according to studies', 'clinical trial', 'randomized controlled trial',
-            'me too', 'same here', 'i agree'
+            'me too', 'same here', 'i agree', 'the bot', 'the robot', 'seizure',
+            'lol', 'haha', 'wtf', 'omg', 'yeah', 'yep', 'nope', 'idk'
         ]
         
-        for phrase in unhelpful_phrases:
-            if phrase in response_lower and len(response.split()) < 20:
-                return True
-        
+        # Check healthcare keywords early
         healthcare_keywords_in_response = [
             'symptom', 'treatment', 'medication', 'medicine', 'doctor', 'health', 'medical',
             'diabetes', 'pain', 'fever', 'headache', 'cough', 'infection', 'disease',
-            'condition', 'diagnosis', 'therapy', 'patient', 'care', 'hospital'
+            'condition', 'diagnosis', 'therapy', 'patient', 'care', 'hospital', 'nausea',
+            'vomiting', 'chills', 'malaria', 'migraine', 'blood pressure', 'hypertension'
         ]
         has_healthcare_keyword = any(keyword in response_lower for keyword in healthcare_keywords_in_response)
+        
+        # Check for very short responses (likely unhelpful) - but allow if has medical content
+        if len(response.split()) < 5 and not has_healthcare_keyword:
+            return True
+        
+        for phrase in unhelpful_phrases:
+            if phrase in response_lower:
+                return True
         
         if not has_healthcare_keyword and len(response.split()) < 15:
             conversational_unhelpful = ['yes, but', 'i\'m sorry', 'not sure', 'how that will help', 'sir', 'ma\'am']
             if any(phrase in response_lower for phrase in conversational_unhelpful):
                 return True
         
+        # Reject very short single-sentence responses that lack healthcare content
         sentences = response.split('.')
-        if len(sentences) == 1 and len(response.split()) < 8:
+        if len(sentences) == 1 and len(response.split()) < 5 and not has_healthcare_keyword:
             return True
             
         return False

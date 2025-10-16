@@ -172,9 +172,6 @@ The project includes a comprehensive training pipeline with hyperparameter optim
 # Run the complete training pipeline
 cd backend
 python train_model.py
-
-# Run model evaluation
-python evaluate_model.py
 ```
 
 ### Fine-tuning Process
@@ -206,7 +203,7 @@ python evaluate_model.py
 ### Training Scripts
 
 - `train_model.py`: Complete training pipeline with hyperparameter tuning
-- `evaluate_model.py`: Comprehensive model evaluation
+- `evaluate_model.py` has been removed – evaluation now runs during training and results are saved automatically.
 - `training_pipeline.py`: Core training logic with metrics
 - `notebooks/fine_tuning_pipeline.ipynb`: Interactive Jupyter notebook
 
